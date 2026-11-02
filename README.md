@@ -8,16 +8,16 @@ Answers cite the section and journal page. If the paper doesn't cover a question
 instead of guessing. Gemini does both the embeddings and the answers, so one API key is all you need.
 
 ```
-PDF --build_corpus.py--> data/tiwa_chunks.jsonl --rag.py--> embed + search --> Gemini answers with [S#] citations
+PDF --scr/build_corpus.py--> data/tiwa_chunks.jsonl --scr/rag.py--> embed + search --> Gemini answers with [S#] citations
 ```
 
 ## Files
 
 | File | Purpose |
 |---|---|
-| `build_corpus.py` | PDF to clean, section-aware chunks (typo fixes logged, page refs kept) |
-| `rag.py` | The whole RAG pipeline and CLI: embed, retrieve, gate, generate, cite |
-| `evaluate.py` | Checks retrieval and refusal on 24 questions and suggests a score threshold |
+| `scr/build_corpus.py` | PDF to clean, section-aware chunks (typo fixes logged, page refs kept) |
+| `scr/rag.py` | The whole RAG pipeline and CLI: embed, retrieve, gate, generate, cite |
+| `scr/evaluate.py` | Checks retrieval and refusal on 24 questions and suggests a score threshold |
 | `data/tiwa_chunks.jsonl` | The 69 chunks (67 indexed; the reference list is kept but not indexed) |
 | `data/cleaning_report.json` | Every correction made, and every artifact name taken from a figure caption |
 
@@ -27,17 +27,17 @@ PDF --build_corpus.py--> data/tiwa_chunks.jsonl --rag.py--> embed + search --> G
 pip install -r requirements.txt
 cp .env.example .env              # add your GEMINI_API_KEY
 
-python rag.py ask "What is a Chu Law used for?"
-python rag.py chat                # interactive
-python evaluate.py                # how well does it work?
-python evaluate.py --full         # also prints Gemini's answers to read
+python scr/rag.py ask "What is a Chu Law used for?"
+python scr/rag.py chat                # interactive
+python scr/evaluate.py                # how well does it work?
+python scr/evaluate.py --full         # also prints Gemini's answers to read
 ```
 
 The index is built on first run and cached in `./index`, so there is no separate ingest step.
 Other options: `--no-llm` (show retrieved passages only), `--scores`, `--json`, `--embedder tfidf` (offline,
 keyword-only, for testing without an API key).
 
-To regenerate the chunks yourself: put the PDF in `data/raw/` and run `python build_corpus.py data/raw/<file>.pdf data`
+To regenerate the chunks yourself: put the PDF in `data/raw/` and run `python scr/build_corpus.py data/raw/<file>.pdf data`
 (needs `pdftotext` from poppler).
 
 ## How it avoids making things up
@@ -51,9 +51,9 @@ To regenerate the chunks yourself: put the PDF in `data/raw/` and run `python bu
 
 ## Calibrating
 
-The default thresholds are untuned guesses. Run `python evaluate.py`: it reports the score ranges for answerable
+The default thresholds are untuned guesses. Run `python scr/evaluate.py`: it reports the score ranges for answerable
 and unanswerable questions and suggests a `RAG_MIN_SCORE`. With only 24 questions, add your own to `QUESTIONS`
-in `evaluate.py`. Model names are overridable (`GEMINI_MODEL`, default `gemini-flash-latest`).
+in `scr/evaluate.py`. Model names are overridable (`GEMINI_MODEL`, default `gemini-flash-latest`).
 
 ## Limits
 
